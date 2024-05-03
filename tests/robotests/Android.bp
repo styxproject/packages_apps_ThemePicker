@@ -35,4 +35,6 @@ android_robolectric_test {
     upstream: true,
 
     instrumentation_for: "ThemePickerShell",
+
+    strict_mode: false,
 }
