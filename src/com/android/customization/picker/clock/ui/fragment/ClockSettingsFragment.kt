@@ -30,7 +30,7 @@ import com.android.customization.module.ThemePickerInjector
 import com.android.customization.picker.clock.ui.binder.ClockSettingsBinder
 import com.android.systemui.shared.clocks.shared.model.ClockPreviewConstants
 import com.android.themepicker.R
-import com.android.wallpaper.module.CustomizationSections
+import com.android.wallpaper.model.Screen
 import com.android.wallpaper.module.InjectorProvider
 import com.android.wallpaper.picker.AppbarFragment
 import com.android.wallpaper.picker.customization.ui.binder.ScreenPreviewBinder
@@ -113,7 +113,7 @@ class ClockSettingsFragment : AppbarFragment() {
                         }
                     },
                     wallpaperInteractor = injector.getWallpaperInteractor(requireContext()),
-                    screen = CustomizationSections.Screen.LOCK_SCREEN,
+                    screen = Screen.LOCK_SCREEN,
                 ),
             lifecycleOwner = this,
             offsetToStart = displayUtils.isSingleDisplayOrUnfoldedHorizontalHinge(activity),
@@ -142,10 +142,6 @@ class ClockSettingsFragment : AppbarFragment() {
 
     override fun getDefaultTitle(): CharSequence {
         return requireContext().getString(R.string.clock_color_and_size_title)
-    }
-
-    override fun getToolbarColorId(): Int {
-        return android.R.color.transparent
     }
 
     override fun getToolbarTextColor(): Int {
