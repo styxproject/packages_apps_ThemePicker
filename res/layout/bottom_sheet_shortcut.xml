@@ -24,7 +24,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/picker_fragment_background">
+        android:background="@drawable/floating_sheet_background2">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/quick_affordance_horizontal_list"
@@ -34,16 +34,10 @@
             android:clipToPadding="false"/>
     </FrameLayout>
 
-    <FrameLayout
-        android:layout_width="match_parent"
+    <com.android.wallpaper.picker.customization.ui.view.FloatingTabToolbar
+        android:id="@+id/floating_bar_tabs"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingVertical="8dp">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@id/slot_tabs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:clipToPadding="false" />
-    </FrameLayout>
+        android:layout_gravity="center_horizontal"
+        android:paddingVertical="8dp" />
 </LinearLayout>
