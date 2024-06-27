@@ -48,7 +48,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-object ShortcutBottomSheetBinder {
+object ShortcutFloatingSheetBinder {
 
     fun bind(
         view: View,
