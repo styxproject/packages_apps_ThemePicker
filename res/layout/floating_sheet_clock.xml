@@ -21,6 +21,7 @@
     android:orientation="vertical">
 
     <FrameLayout
+        android:id="@+id/clock_floating_sheet_content_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingVertical="@dimen/floating_sheet_content_vertical_padding"
@@ -37,7 +38,7 @@
 
 
         <LinearLayout
-            android:id="@+id/clock_color_sheet_content"
+            android:id="@+id/clock_floating_sheet_color_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -45,30 +46,36 @@
             android:clipChildren="false">
 
             <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/clock_color_list"
+                android:id="@+id/clock_color_list_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipToPadding="false"
                 android:clipChildren="false"
-                android:clipToPadding="false"/>
+                android:layout_marginBottom="12dp">
 
                 <!--
-                This is an invisible placeholder put in place so that the parent keeps its height
-                stable as the RecyclerView updates from 0 items to N items. Keeping it stable allows
-                the layout logic to keep the size of the preview container stable as well, which
-                bodes well for setting up the SurfaceView for remote rendering without changing its
-                size after the content is loaded into the RecyclerView.
+               This is an invisible placeholder put in place so that the parent keeps its height
+               stable as the RecyclerView updates from 0 items to N items. Keeping it stable allows
+               the layout logic to keep the size of the preview container stable as well, which
+               bodes well for setting up the SurfaceView for remote rendering without changing its
+               size after the content is loaded into the RecyclerView.
 
-                It's critical for any TextViews inside the included layout to have text.
-                -->
+               It's critical for any TextViews inside the included layout to have text.
+               -->
                 <include
                     layout="@layout/clock_color_option_noop_item"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:visibility="invisible" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/clock_color_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false" />
+
+
             </FrameLayout>
 
 
@@ -87,7 +94,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/clock_size_container"
+            android:id="@+id/clock_floating_sheet_size_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"

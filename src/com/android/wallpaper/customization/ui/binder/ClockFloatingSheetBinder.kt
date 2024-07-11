@@ -16,13 +16,16 @@
 
 package com.android.wallpaper.customization.ui.binder
 
+import android.animation.ValueAnimator
 import android.annotation.DrawableRes
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.view.View
+import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -36,6 +39,7 @@ import com.android.customization.picker.color.ui.view.ColorOptionIconView
 import com.android.customization.picker.color.ui.viewmodel.ColorOptionIconViewModel
 import com.android.customization.picker.common.ui.view.DoubleRowListItemSpacing
 import com.android.themepicker.R
+import com.android.wallpaper.customization.ui.viewmodel.ClockFloatingSheetHeightsViewModel
 import com.android.wallpaper.customization.ui.viewmodel.ClockPickerViewModel
 import com.android.wallpaper.customization.ui.viewmodel.ClockPickerViewModel.Tab.COLOR
 import com.android.wallpaper.customization.ui.viewmodel.ClockPickerViewModel.Tab.SIZE
@@ -45,11 +49,21 @@ import com.android.wallpaper.picker.customization.ui.view.FloatingTabToolbar.Tab
 import com.android.wallpaper.picker.customization.ui.view.FloatingTabToolbar.Tab.SECONDARY
 import com.android.wallpaper.picker.customization.ui.view.FloatingTabToolbar.Tab.TERTIARY
 import com.android.wallpaper.picker.option.ui.adapter.OptionItemAdapter
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 object ClockFloatingSheetBinder {
     private const val SLIDER_ENABLED_ALPHA = 1f
     private const val SLIDER_DISABLED_ALPHA = .3f
+    private const val ANIMATION_DURATION = 200L
+
+    private val _clockFloatingSheetHeights: MutableStateFlow<ClockFloatingSheetHeightsViewModel?> =
+        MutableStateFlow(null)
+    private val clockFloatingSheetHeights: Flow<ClockFloatingSheetHeightsViewModel?> =
+        _clockFloatingSheetHeights.asStateFlow()
 
     fun bind(
         view: View,
@@ -78,11 +92,15 @@ object ClockFloatingSheetBinder {
                 setOnTabClick(TERTIARY) { viewModel.setTab(SIZE) }
             }
 
+        val container = view.requireViewById<ViewGroup>(R.id.clock_floating_sheet_content_container)
+
         // Clock style
         val clockList = view.requireViewById<View>(R.id.clock_list)
 
         // Cloc color
-        val clockColorSheetContent = view.requireViewById<View>(R.id.clock_color_sheet_content)
+        val clockColorSheetContent =
+            view.requireViewById<View>(R.id.clock_floating_sheet_color_content)
+        val clockColorListContainer = view.requireViewById<View>(R.id.clock_color_list_container)
         val clockColorAdapter =
             createOptionItemAdapter(
                 view.resources.configuration.uiMode,
@@ -112,22 +130,67 @@ object ClockFloatingSheetBinder {
         )
 
         // Clock size
-        val clockSizeContainer = view.requireViewById<View>(R.id.clock_size_container)
+        val clockSizeContainer = view.requireViewById<View>(R.id.clock_floating_sheet_size_content)
+
+        view.doOnLayout {
+            if (_clockFloatingSheetHeights.value == null) {
+                _clockFloatingSheetHeights.value =
+                    ClockFloatingSheetHeightsViewModel(
+                        clockStyleContentHeight = clockList.height,
+                        clockColorContentHeight = clockColorSheetContent.height,
+                        clockColorListHeight = clockColorListContainer.height,
+                        clockSizeContentHeight = clockSizeContainer.height,
+                    )
+            }
+        }
 
         lifecycleOwner.lifecycleScope.launch {
             lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.selectedTab.collect {
-                        when (it) {
-                            STYLE -> tabs.setTabSelected(PRIMARY)
-                            COLOR -> tabs.setTabSelected(SECONDARY)
-                            SIZE -> tabs.setTabSelected(TERTIARY)
+                    combine(clockFloatingSheetHeights, viewModel.selectedTab) { heights, selectedTab
+                            ->
+                            heights to selectedTab
                         }
+                        .collect { (heights, selectedTab) ->
+                            heights ?: return@collect
+                            when (selectedTab) {
+                                STYLE -> tabs.setTabSelected(PRIMARY)
+                                COLOR -> tabs.setTabSelected(SECONDARY)
+                                SIZE -> tabs.setTabSelected(TERTIARY)
+                            }
+                            val targetHeight =
+                                when (selectedTab) {
+                                    STYLE -> heights.clockStyleContentHeight
+                                    COLOR -> heights.clockColorContentHeight
+                                    SIZE -> heights.clockSizeContentHeight
+                                } +
+                                    view.resources.getDimensionPixelSize(
+                                        R.dimen.floating_sheet_content_vertical_padding
+                                    ) * 2
 
-                        clockList.isVisible = it == STYLE
-                        clockColorSheetContent.isVisible = it == COLOR
-                        clockSizeContainer.isVisible = it == SIZE
-                    }
+                            val animationFloatingSheet =
+                                ValueAnimator.ofInt(container.height, targetHeight)
+                            animationFloatingSheet.addUpdateListener { valueAnimator ->
+                                val value = valueAnimator.animatedValue as Int
+                                container.layoutParams =
+                                    container.layoutParams.apply { height = value }
+                            }
+                            animationFloatingSheet.setDuration(ANIMATION_DURATION)
+                            animationFloatingSheet.start()
+
+                            // For some reason the color list layout collapses when we animate the
+                            // parent's height. This is to make sure the height stays as it is
+                            // firstly
+                            // inflated.
+                            clockColorList.layoutParams =
+                                clockColorList.layoutParams.apply {
+                                    height = heights.clockColorListHeight
+                                }
+
+                            clockList.isVisible = selectedTab == STYLE
+                            clockColorSheetContent.isVisible = selectedTab == COLOR
+                            clockSizeContainer.isVisible = selectedTab == SIZE
+                        }
                 }
 
                 launch {
