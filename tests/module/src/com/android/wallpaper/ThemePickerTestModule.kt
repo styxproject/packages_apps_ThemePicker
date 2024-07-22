@@ -77,7 +77,7 @@ abstract class ThemePickerTestModule {
 
     @Binds @Singleton abstract fun bindUserEventLogger(impl: TestUserEventLogger): UserEventLogger
 
-    @Binds @Singleton abstract fun bindFakeRequester(impl: FakeDefaultRequester): Requester
+    @Binds @Singleton abstract fun bindRequester(impl: FakeDefaultRequester): Requester
 
     @Binds
     @Singleton
@@ -85,7 +85,9 @@ abstract class ThemePickerTestModule {
 
     @Binds
     @Singleton
-    abstract fun bindWallpaperPrefs(impl: TestDefaultCustomizationPreferences): WallpaperPreferences
+    abstract fun bindWallpaperPreferences(
+        impl: TestDefaultCustomizationPreferences
+    ): WallpaperPreferences
 
     //// ThemePicker prod
 
@@ -95,7 +97,7 @@ abstract class ThemePickerTestModule {
 
     @Binds
     @Singleton
-    abstract fun bindCustomizationPrefs(
+    abstract fun bindCustomizationPreferences(
         impl: TestDefaultCustomizationPreferences
     ): CustomizationPreferences
 
@@ -111,7 +113,7 @@ abstract class ThemePickerTestModule {
 
     @Binds
     @Singleton
-    abstract fun bindEffectsWallpaperDialogUtil(
+    abstract fun bindImageEffectDialogUtil(
         impl: DefaultImageEffectDialogUtil
     ): ImageEffectDialogUtil
 

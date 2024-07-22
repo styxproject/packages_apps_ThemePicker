@@ -58,7 +58,9 @@ import kotlinx.coroutines.CoroutineScope
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class ThemePickerAppModule {
-    @Binds @Singleton abstract fun bindInjector(impl: ThemePickerInjector): CustomizationInjector
+    @Binds
+    @Singleton
+    abstract fun bindCustomizationInjector(impl: ThemePickerInjector): CustomizationInjector
 
     @Binds
     @Singleton
@@ -80,7 +82,7 @@ abstract class ThemePickerAppModule {
 
     @Binds
     @Singleton
-    abstract fun bindEffectsWallpaperDialogUtil(
+    abstract fun bindImageEffectDialogUtil(
         impl: DefaultImageEffectDialogUtil
     ): ImageEffectDialogUtil
 
