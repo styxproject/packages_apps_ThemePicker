@@ -235,7 +235,7 @@ constructor(
             ?: NotificationSettingsInteractor(
                     repository =
                         NotificationSettingsRepository(
-                            scope = getApplicationCoroutineScope(),
+                            backgroundScope = bgScope,
                             backgroundDispatcher = bgDispatcher,
                             secureSettingsRepository = secureSettingsRepository.get(),
                         ),
