@@ -42,7 +42,9 @@ import com.android.wallpaper.module.DefaultPartnerProvider
 import com.android.wallpaper.module.PartnerProvider
 import com.android.wallpaper.module.WallpaperPreferences
 import com.android.wallpaper.module.logging.UserEventLogger
+import com.android.wallpaper.picker.category.domain.interactor.CategoryInteractor
 import com.android.wallpaper.picker.category.domain.interactor.CreativeCategoryInteractor
+import com.android.wallpaper.picker.category.domain.interactor.implementations.CategoryInteractorImpl
 import com.android.wallpaper.picker.category.domain.interactor.implementations.CreativeCategoryInteractorImpl
 import com.android.wallpaper.picker.customization.ui.binder.CustomizationOptionsBinder
 import com.android.wallpaper.picker.di.modules.BackgroundDispatcher
@@ -92,6 +94,10 @@ abstract class ThemePickerAppModule {
     @Binds
     @Singleton
     abstract fun bindEffectsController(impl: DefaultEffectsController): EffectsController
+
+    @Binds
+    @Singleton
+    abstract fun bindGoogleCategoryInteractor(impl: CategoryInteractorImpl): CategoryInteractor
 
     @Binds
     @Singleton
