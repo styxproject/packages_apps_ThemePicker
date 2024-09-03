@@ -102,7 +102,7 @@ constructor(
                 {
                     defaultCustomizationOptionsViewModel.selectOption(
                         ThemePickerCustomizationOptionUtil.ThemePickerHomeCustomizationOption
-                            .APP_GRID
+                            .APP_SHAPE_AND_GRID
                     )
                 }
             } else {
