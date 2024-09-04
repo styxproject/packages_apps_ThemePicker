@@ -58,6 +58,10 @@ constructor(
             previewingGridOptionKey ?: currentlySetGridOption.key.value
         }
 
+    fun resetPreview() {
+        _previewingGridOptionKey.tryEmit(null)
+    }
+
     val optionItems: Flow<List<OptionItemViewModel<GridIconViewModel>>> =
         interactor.gridOptions.filterNotNull().map { gridOptions ->
             gridOptions.map { toOptionItemViewModel(it) }
@@ -80,8 +84,6 @@ constructor(
                 }
             }
         }
-
-    val isOnApplyEnabled: Flow<Boolean> = onApply.map { it != null }
 
     private fun toOptionItemViewModel(
         option: GridOptionModel

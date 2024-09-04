@@ -104,7 +104,7 @@ constructor(private val defaultWorkspaceCallbackBinder: DefaultWorkspaceCallback
 
                         launch {
                             viewModel.keyguardQuickAffordancePickerViewModel2
-                                .selectedQuickAffordances
+                                .previewingQuickAffordances
                                 .collect {
                                     it[SLOT_ID_BOTTOM_START]?.let {
                                         workspaceCallback.sendMessage(
