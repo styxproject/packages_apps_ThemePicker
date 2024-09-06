@@ -23,6 +23,7 @@ package {
 android_library {
     name: "ThemePickerTestLib",
 
+    defaults: ["ThemePicker_defaults"],
     srcs: [
         "src/**/*.java",
         "src/**/*.kt",

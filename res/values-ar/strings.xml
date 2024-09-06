@@ -121,13 +121,17 @@
     <string name="color_picker_title" msgid="6666830057938082864">"ألوان النظام"</string>
     <string name="keyguard_slot_name_bottom_start" msgid="8747677880200629719">"اختصار اليمين"</string>
     <string name="keyguard_slot_name_bottom_end" msgid="2525487375680217083">"اختصار اليسار"</string>
-    <string name="keyguard_affordance_none" msgid="1751643933430782312">"بدون أزرار"</string>
+    <string name="keyguard_affordance_none" msgid="1751643933430782312">"لا يوجد"</string>
     <string name="keyguard_affordance_enablement_dialog_headline" msgid="365379085932610314">"تعذُّر إضافة الاختصار"</string>
     <string name="keyguard_affordance_enablement_dialog_action_template" msgid="8117011931337357438">"فتح <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
     <string name="keyguard_affordance_enablement_dialog_message" msgid="6136286758939253570">"لإضافة تطبيق \"<xliff:g id="APPNAME">%1$s</xliff:g>\" كاختصار، تأكَّد من"</string>
     <string name="keyguard_affordance_enablement_dialog_dismiss_button" msgid="629754625264422508">"تم"</string>
     <string name="keyguard_quick_affordance_title" msgid="4242813186995735584">"الاختصارات"</string>
     <string name="keyguard_quick_affordance_section_title" msgid="2806304242671717309">"الاختصارات"</string>
+    <string name="color_contrast_section_title" msgid="7194809124718896091">"تباين الألوان"</string>
+    <string name="color_contrast_default_title" msgid="7954235103549276978">"تلقائي"</string>
+    <string name="color_contrast_medium_title" msgid="8071574793250090215">"متوسط"</string>
+    <string name="color_contrast_high_title" msgid="5554685752479470200">"عالٍ"</string>
     <string name="keyguard_quick_affordance_two_selected_template" msgid="1757099194522296363">"\"<xliff:g id="FIRST">%1$s</xliff:g>\" و\"<xliff:g id="SECOND">%2$s</xliff:g>\""</string>
     <string name="keyguard_quick_affordance_none_selected" msgid="8494127020144112003">"بدون اختصارات"</string>
     <string name="show_notifications_on_lock_screen" msgid="4157744243084646720">"إظهار الإشعارات على شاشة القفل"</string>

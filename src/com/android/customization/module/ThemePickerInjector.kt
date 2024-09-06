@@ -16,7 +16,6 @@
 package com.android.customization.module
 
 import android.app.Activity
-import android.app.UiModeManager
 import android.app.WallpaperColors
 import android.app.WallpaperManager
 import android.content.Context
@@ -62,6 +61,7 @@ import com.android.customization.picker.quickaffordance.data.repository.Keyguard
 import com.android.customization.picker.quickaffordance.domain.interactor.KeyguardQuickAffordancePickerInteractor
 import com.android.customization.picker.quickaffordance.domain.interactor.KeyguardQuickAffordanceSnapshotRestorer
 import com.android.customization.picker.quickaffordance.ui.viewmodel.KeyguardQuickAffordancePickerViewModel
+import com.android.customization.picker.settings.ui.viewmodel.ColorContrastSectionViewModel
 import com.android.systemui.shared.clocks.ClockRegistry
 import com.android.systemui.shared.customization.data.content.CustomizationProviderClient
 import com.android.systemui.shared.customization.data.content.CustomizationProviderClientImpl
@@ -125,6 +125,10 @@ constructor(
     private var gridSnapshotRestorer: GridSnapshotRestorer? = null
     private var gridScreenViewModelFactory: GridScreenViewModel.Factory? = null
     private var clockRegistryProvider: ClockRegistryProvider? = null
+
+    // Injected objects, sorted by type
+    @Inject
+    lateinit var colorContrastSectionViewModelFactory: Lazy<ColorContrastSectionViewModel.Factory>
     @Inject lateinit var themesUserEventLogger: Lazy<ThemesUserEventLogger>
 
     override fun getCustomizationSections(activity: ComponentActivity): CustomizationSections {
@@ -138,6 +142,7 @@ constructor(
                         wallpaperColorsRepository = getWallpaperColorsRepository(),
                     ),
                     getKeyguardQuickAffordancePickerViewModelFactory(appContext),
+                    colorContrastSectionViewModelFactory.get(),
                     getNotificationSectionViewModelFactory(appContext),
                     getFlags(),
                     getClockCarouselViewModelFactory(
@@ -200,7 +205,7 @@ constructor(
     }
 
     override fun getWallpaperInteractor(context: Context): WallpaperInteractor {
-        if (getFlags().isMultiCropEnabled() && getFlags().isMultiCropPreviewUiEnabled()) {
+        if (getFlags().isMultiCropEnabled()) {
             return injectedWallpaperInteractor.get()
         }
 
@@ -465,7 +470,7 @@ constructor(
         return darkModeSnapshotRestorer
             ?: DarkModeSnapshotRestorer(
                     context = appContext,
-                    manager = appContext.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager,
+                    manager = uiModeManager.get(),
                     backgroundDispatcher = bgDispatcher,
                 )
                 .also { darkModeSnapshotRestorer = it }

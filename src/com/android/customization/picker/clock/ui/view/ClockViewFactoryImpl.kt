@@ -30,6 +30,7 @@ import com.android.systemui.plugins.clocks.ClockController
 import com.android.systemui.plugins.clocks.WeatherData
 import com.android.systemui.shared.clocks.ClockRegistry
 import com.android.themepicker.R
+import com.android.wallpaper.config.BaseFlags
 import com.android.wallpaper.util.TimeUtils.TimeTicker
 import java.util.concurrent.ConcurrentHashMap
 
@@ -46,7 +47,7 @@ class ClockViewFactoryImpl(
 ) : ClockViewFactory {
     private val resources = appContext.resources
     private val timeTickListeners: ConcurrentHashMap<Int, TimeTicker> = ConcurrentHashMap()
-    private val clockControllers: HashMap<String, ClockController> = HashMap()
+    private val clockControllers: ConcurrentHashMap<String, ClockController> = ConcurrentHashMap()
     private val smallClockFrames: HashMap<String, FrameLayout> = HashMap()
 
     override fun getController(clockId: String): ClockController {
@@ -79,6 +80,14 @@ class ClockViewFactoryImpl(
         smallClockFrame.translationX = 0F
         smallClockFrame.translationY = 0F
         return smallClockFrame
+    }
+
+    /** Enables or disables the reactive swipe interaction */
+    override fun setReactiveTouchInteractionEnabled(clockId: String, enable: Boolean) {
+        check(BaseFlags.get().isClockReactiveVariantsEnabled()) {
+            "isClockReactiveVariantsEnabled is disabled"
+        }
+        getController(clockId).events.isReactiveTouchInteractionEnabled = enable
     }
 
     private fun createSmallClockFrame(): FrameLayout {
