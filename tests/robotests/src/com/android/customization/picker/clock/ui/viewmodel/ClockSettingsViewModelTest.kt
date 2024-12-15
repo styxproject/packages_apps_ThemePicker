@@ -61,23 +61,23 @@ class ClockSettingsViewModelTest {
         Dispatchers.setMain(testDispatcher)
         context = InstrumentationRegistry.getInstrumentation().targetContext
         testScope = TestScope(testDispatcher)
+        val repository = FakeClockPickerRepository()
         clockPickerInteractor =
             ClockPickerInteractor(
-                repository = FakeClockPickerRepository(),
-                snapshotRestorer = {
-                    ClockPickerSnapshotRestorer(interactor = clockPickerInteractor).apply {
+                repository = repository,
+                snapshotRestorer =
+                    ClockPickerSnapshotRestorer(repository = repository).apply {
                         runBlocking { setUpSnapshotRestorer(store = FakeSnapshotStore()) }
-                    }
-                },
+                    },
             )
+        val colorPickerRepository = FakeColorPickerRepository(context = context)
         colorPickerInteractor =
             ColorPickerInteractor(
-                repository = FakeColorPickerRepository(context = context),
-                snapshotRestorer = {
-                    ColorPickerSnapshotRestorer(interactor = colorPickerInteractor).apply {
+                repository = colorPickerRepository,
+                snapshotRestorer =
+                    ColorPickerSnapshotRestorer(repository = colorPickerRepository).apply {
                         runBlocking { setUpSnapshotRestorer(store = FakeSnapshotStore()) }
-                    }
-                },
+                    },
             )
         underTest =
             ClockSettingsViewModel.Factory(

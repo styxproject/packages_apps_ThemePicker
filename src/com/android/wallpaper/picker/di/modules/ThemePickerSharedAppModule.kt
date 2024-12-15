@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.wallpaper.picker.di.modules
 
-import com.android.wallpaper.effects.DefaultEffectsController
-import com.android.wallpaper.effects.EffectsController
+import com.android.customization.model.grid.DefaultGridOptionsManager
+import com.android.customization.model.grid.GridOptionsManager2
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-/** This class provides the singleton scoped effects controller for wallpaper picker. */
-@InstallIn(SingletonComponent::class)
 @Module
-abstract class EffectsModule {
+@InstallIn(SingletonComponent::class)
+abstract class ThemePickerSharedAppModule {
 
     @Binds
     @Singleton
-    abstract fun bindEffectsController(impl: DefaultEffectsController): EffectsController
+    abstract fun bindGridOptionsManager2(impl: DefaultGridOptionsManager): GridOptionsManager2
 }

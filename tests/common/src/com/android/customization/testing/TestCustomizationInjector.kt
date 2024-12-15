@@ -12,11 +12,10 @@ import com.android.customization.picker.clock.domain.interactor.ClockPickerInter
 import com.android.customization.picker.clock.ui.view.ClockViewFactory
 import com.android.customization.picker.clock.ui.viewmodel.ClockCarouselViewModel
 import com.android.customization.picker.clock.ui.viewmodel.ClockSettingsViewModel
-import com.android.customization.picker.color.domain.interactor.ColorPickerInteractor
 import com.android.customization.picker.color.ui.viewmodel.ColorPickerViewModel
 import com.android.customization.picker.quickaffordance.domain.interactor.KeyguardQuickAffordancePickerInteractor
-import com.android.systemui.shared.clocks.ClockRegistry
 import com.android.wallpaper.module.logging.UserEventLogger
+import com.android.wallpaper.picker.category.wrapper.WallpaperCategoryWrapper
 import com.android.wallpaper.picker.customization.data.repository.WallpaperColorsRepository
 import com.android.wallpaper.testing.TestInjector
 import javax.inject.Inject
@@ -27,7 +26,7 @@ open class TestCustomizationInjector
 @Inject
 constructor(
     private val customPrefs: TestDefaultCustomizationPreferences,
-    private val themesUserEventLogger: ThemesUserEventLogger
+    private val themesUserEventLogger: ThemesUserEventLogger,
 ) : TestInjector(themesUserEventLogger), CustomizationInjector {
     /////////////////
     // CustomizationInjector implementations
@@ -43,32 +42,14 @@ constructor(
         throw UnsupportedOperationException("not implemented")
     }
 
-    override fun getClockRegistry(context: Context): ClockRegistry? {
-        throw UnsupportedOperationException("not implemented")
-    }
-
-    override fun getClockPickerInteractor(context: Context): ClockPickerInteractor {
-        throw UnsupportedOperationException("not implemented")
-    }
-
     override fun getWallpaperColorResources(
         wallpaperColors: WallpaperColors,
-        context: Context
+        context: Context,
     ): WallpaperColorResources {
         throw UnsupportedOperationException("not implemented")
     }
 
-    override fun getColorPickerInteractor(
-        context: Context,
-        wallpaperColorsRepository: WallpaperColorsRepository,
-    ): ColorPickerInteractor {
-        throw UnsupportedOperationException("not implemented")
-    }
-
-    override fun getColorPickerViewModelFactory(
-        context: Context,
-        wallpaperColorsRepository: WallpaperColorsRepository,
-    ): ColorPickerViewModel.Factory {
+    override fun getColorPickerViewModelFactory(context: Context): ColorPickerViewModel.Factory {
         throw UnsupportedOperationException("not implemented")
     }
 
@@ -98,5 +79,9 @@ constructor(
 
     override fun getUserEventLogger(): UserEventLogger {
         return themesUserEventLogger
+    }
+
+    override fun getWallpaperCategoryWrapper(): WallpaperCategoryWrapper {
+        return super.fakeWallpaperCategoryWrapper
     }
 }

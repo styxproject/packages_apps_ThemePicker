@@ -32,8 +32,8 @@ import com.android.customization.picker.color.ui.adapter.ColorTypeTabAdapter
 import com.android.customization.picker.color.ui.view.ColorOptionIconView
 import com.android.customization.picker.color.ui.viewmodel.ColorOptionIconViewModel
 import com.android.customization.picker.color.ui.viewmodel.ColorPickerViewModel
-import com.android.customization.picker.common.ui.view.ItemSpacing
 import com.android.themepicker.R
+import com.android.wallpaper.picker.common.ui.view.ItemSpacing
 import com.android.wallpaper.picker.option.ui.adapter.OptionItemAdapter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -133,9 +133,10 @@ object ColorPickerBinder {
 
     interface Binding {
         fun saveInstanceState(savedState: Bundle)
+
         fun restoreInstanceState(savedState: Bundle)
     }
 
-    private val LAYOUT_MANAGER_SAVED_STATE: String = "layout_manager_state"
+    private const val LAYOUT_MANAGER_SAVED_STATE: String = "layout_manager_state"
     private var layoutManagerSavedState: Parcelable? = null
 }

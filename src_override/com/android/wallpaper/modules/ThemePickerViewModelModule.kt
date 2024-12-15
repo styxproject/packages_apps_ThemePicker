@@ -17,7 +17,7 @@
 package com.android.wallpaper.modules
 
 import com.android.wallpaper.customization.ui.viewmodel.ThemePickerCustomizationOptionsViewModel
-import com.android.wallpaper.picker.customization.ui.viewmodel.CustomizationOptionsViewModel
+import com.android.wallpaper.picker.customization.ui.viewmodel.CustomizationOptionsViewModelFactory
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -30,7 +30,7 @@ abstract class ThemePickerViewModelModule {
 
     @Binds
     @ViewModelScoped
-    abstract fun bindCustomizationOptionsViewModel(
-        impl: ThemePickerCustomizationOptionsViewModel
-    ): CustomizationOptionsViewModel
+    abstract fun bindCustomizationOptionsViewModelFactory(
+        impl: ThemePickerCustomizationOptionsViewModel.Factory
+    ): CustomizationOptionsViewModelFactory
 }

@@ -16,6 +16,7 @@
  */
 package com.android.customization.picker.clock.data.repository
 
+import android.graphics.drawable.Drawable
 import android.provider.Settings
 import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
@@ -24,6 +25,9 @@ import com.android.customization.picker.clock.shared.model.ClockMetadataModel
 import com.android.systemui.plugins.clocks.ClockMetadata
 import com.android.systemui.shared.clocks.ClockRegistry
 import com.android.systemui.shared.settings.data.repository.SecureSettingsRepository
+import com.android.wallpaper.picker.di.modules.MainDispatcher
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,11 +46,14 @@ import kotlinx.coroutines.flow.shareIn
 import org.json.JSONObject
 
 /** Implementation of [ClockPickerRepository], using [ClockRegistry]. */
-class ClockPickerRepositoryImpl(
+@Singleton
+class ClockPickerRepositoryImpl
+@Inject
+constructor(
     private val secureSettingsRepository: SecureSettingsRepository,
     private val registry: ClockRegistry,
-    scope: CoroutineScope,
-    mainDispatcher: CoroutineDispatcher,
+    @MainDispatcher mainScope: CoroutineScope,
+    @MainDispatcher mainDispatcher: CoroutineDispatcher,
 ) : ClockPickerRepository {
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -55,8 +62,18 @@ class ClockPickerRepositoryImpl(
                 fun send() {
                     val activeClockId = registry.activeClockId
                     val allClocks =
-                        registry.getClocks().map {
-                            it.toModel(isSelected = it.clockId == activeClockId)
+                        registry.getClocks().mapNotNull {
+                            val clockConfig = registry.getClockPickerConfig(it.clockId)
+                            if (clockConfig != null) {
+                                it.toModel(
+                                    isSelected = it.clockId == activeClockId,
+                                    description = clockConfig.description,
+                                    thumbnail = clockConfig.thumbnail,
+                                    isReactiveToTone = clockConfig.isReactiveToTone,
+                                )
+                            } else {
+                                null
+                            }
                         }
 
                     trySend(allClocks)
@@ -87,17 +104,24 @@ class ClockPickerRepositoryImpl(
                 fun send() {
                     val activeClockId = registry.activeClockId
                     val metadata = registry.settings?.metadata
+                    val clockConfig = registry.getClockPickerConfig(activeClockId)
                     val model =
-                        registry
-                            .getClocks()
-                            .find { clockMetadata -> clockMetadata.clockId == activeClockId }
-                            ?.toModel(
-                                isSelected = true,
-                                selectedColorId = metadata?.getSelectedColorId(),
-                                colorTone = metadata?.getColorTone()
-                                        ?: ClockMetadataModel.DEFAULT_COLOR_TONE_PROGRESS,
-                                seedColor = registry.seedColor
-                            )
+                        clockConfig?.let {
+                            registry
+                                .getClocks()
+                                .find { clockMetadata -> clockMetadata.clockId == activeClockId }
+                                ?.toModel(
+                                    isSelected = true,
+                                    description = it.description,
+                                    thumbnail = it.thumbnail,
+                                    isReactiveToTone = it.isReactiveToTone,
+                                    selectedColorId = metadata?.getSelectedColorId(),
+                                    colorTone =
+                                        metadata?.getColorTone()
+                                            ?: ClockMetadataModel.DEFAULT_COLOR_TONE_PROGRESS,
+                                    seedColor = registry.seedColor,
+                                )
+                        }
                     trySend(model)
                 }
 
@@ -151,7 +175,7 @@ class ClockPickerRepositoryImpl(
             .map { isDynamic -> if (isDynamic) ClockSize.DYNAMIC else ClockSize.SMALL }
             .distinctUntilChanged()
             .shareIn(
-                scope = scope,
+                scope = mainScope,
                 started = SharingStarted.Eagerly,
                 replay = 1,
             )
@@ -181,6 +205,9 @@ class ClockPickerRepositoryImpl(
     /** By default, [ClockMetadataModel] has no color information unless specified. */
     private fun ClockMetadata.toModel(
         isSelected: Boolean,
+        description: String,
+        thumbnail: Drawable,
+        isReactiveToTone: Boolean,
         selectedColorId: String? = null,
         @IntRange(from = 0, to = 100) colorTone: Int = 0,
         @ColorInt seedColor: Int? = null,
@@ -188,6 +215,9 @@ class ClockPickerRepositoryImpl(
         return ClockMetadataModel(
             clockId = clockId,
             isSelected = isSelected,
+            description = description,
+            thumbnail = thumbnail,
+            isReactiveToTone = isReactiveToTone,
             selectedColorId = selectedColorId,
             colorToneProgress = colorTone,
             seedColor = seedColor,

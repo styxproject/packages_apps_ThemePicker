@@ -18,22 +18,51 @@ package com.android.wallpaper.customization.ui.viewmodel
 
 import com.android.wallpaper.customization.ui.util.ThemePickerCustomizationOptionUtil
 import com.android.wallpaper.picker.customization.ui.viewmodel.CustomizationOptionsViewModel
+import com.android.wallpaper.picker.customization.ui.viewmodel.CustomizationOptionsViewModelFactory
 import com.android.wallpaper.picker.customization.ui.viewmodel.DefaultCustomizationOptionsViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.scopes.ViewModelScoped
-import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-@ViewModelScoped
 class ThemePickerCustomizationOptionsViewModel
-@Inject
+@AssistedInject
 constructor(
-    private val defaultCustomizationOptionsViewModel: DefaultCustomizationOptionsViewModel
+    defaultCustomizationOptionsViewModelFactory: DefaultCustomizationOptionsViewModel.Factory,
+    keyguardQuickAffordancePickerViewModel2Factory: KeyguardQuickAffordancePickerViewModel2.Factory,
+    colorPickerViewModel2Factory: ColorPickerViewModel2.Factory,
+    clockPickerViewModelFactory: ClockPickerViewModel.Factory,
+    shapeAndGridPickerViewModelFactory: ShapeAndGridPickerViewModel.Factory,
+    @Assisted private val viewModelScope: CoroutineScope,
 ) : CustomizationOptionsViewModel {
+
+    private val defaultCustomizationOptionsViewModel =
+        defaultCustomizationOptionsViewModelFactory.create(viewModelScope)
+
+    val clockPickerViewModel = clockPickerViewModelFactory.create(viewModelScope = viewModelScope)
+    val keyguardQuickAffordancePickerViewModel2 =
+        keyguardQuickAffordancePickerViewModel2Factory.create(viewModelScope = viewModelScope)
+    val colorPickerViewModel2 = colorPickerViewModel2Factory.create(viewModelScope = viewModelScope)
+    val shapeAndGridPickerViewModel =
+        shapeAndGridPickerViewModelFactory.create(viewModelScope = viewModelScope)
 
     override val selectedOption = defaultCustomizationOptionsViewModel.selectedOption
 
-    override fun deselectOption(): Boolean = defaultCustomizationOptionsViewModel.deselectOption()
+    override fun deselectOption(): Boolean {
+        keyguardQuickAffordancePickerViewModel2.resetPreview()
+        shapeAndGridPickerViewModel.resetPreview()
+        clockPickerViewModel.resetPreview()
+        return defaultCustomizationOptionsViewModel.deselectOption()
+    }
 
     val onCustomizeClockClicked: Flow<(() -> Unit)?> =
         selectedOption.map {
@@ -61,4 +90,72 @@ constructor(
                 null
             }
         }
+
+    val onCustomizeColorsClicked: Flow<(() -> Unit)?> =
+        selectedOption.map {
+            if (it == null) {
+                {
+                    defaultCustomizationOptionsViewModel.selectOption(
+                        ThemePickerCustomizationOptionUtil.ThemePickerHomeCustomizationOption.COLORS
+                    )
+                }
+            } else {
+                null
+            }
+        }
+
+    val onCustomizeShapeAndGridClicked: Flow<(() -> Unit)?> =
+        selectedOption.map {
+            if (it == null) {
+                {
+                    defaultCustomizationOptionsViewModel.selectOption(
+                        ThemePickerCustomizationOptionUtil.ThemePickerHomeCustomizationOption
+                            .APP_SHAPE_AND_GRID
+                    )
+                }
+            } else {
+                null
+            }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val onApplyButtonClicked =
+        selectedOption
+            .flatMapLatest {
+                when (it) {
+                    ThemePickerCustomizationOptionUtil.ThemePickerLockCustomizationOption.CLOCK ->
+                        clockPickerViewModel.onApply
+                    ThemePickerCustomizationOptionUtil.ThemePickerLockCustomizationOption
+                        .SHORTCUTS -> keyguardQuickAffordancePickerViewModel2.onApply
+                    ThemePickerCustomizationOptionUtil.ThemePickerHomeCustomizationOption
+                        .APP_SHAPE_AND_GRID -> shapeAndGridPickerViewModel.onApply
+                    else -> flow { emit(null) }
+                }
+            }
+            .map { onApply ->
+                {
+                    if (onApply != null) {
+                        viewModelScope.launch {
+                            onApply()
+                            // We only wait until onApply() is done to execute deselectOption()
+                            deselectOption()
+                        }
+                    } else {
+                        null
+                    }
+                }
+            }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val isOnApplyEnabled: Flow<Boolean> = onApplyButtonClicked.map { it != null }
+
+    val isOnApplyVisible: Flow<Boolean> = selectedOption.map { it != null }
+
+    @ViewModelScoped
+    @AssistedFactory
+    interface Factory : CustomizationOptionsViewModelFactory {
+        override fun create(
+            viewModelScope: CoroutineScope
+        ): ThemePickerCustomizationOptionsViewModel
+    }
 }

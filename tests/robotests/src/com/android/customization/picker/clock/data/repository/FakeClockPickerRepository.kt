@@ -16,6 +16,7 @@
 package com.android.customization.picker.clock.data.repository
 
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
 import com.android.customization.picker.clock.data.repository.FakeClockPickerRepository.Companion.fakeClocks
@@ -36,24 +37,26 @@ open class FakeClockPickerRepository(clocks: List<ClockMetadataModel> = fakeCloc
     private val colorTone = MutableStateFlow(ClockMetadataModel.DEFAULT_COLOR_TONE_PROGRESS)
     @ColorInt private val seedColor = MutableStateFlow<Int?>(null)
     override val selectedClock: Flow<ClockMetadataModel> =
-        combine(
+        combine(selectedClockId, selectedColorId, colorTone, seedColor) {
             selectedClockId,
-            selectedColorId,
+            selectedColor,
             colorTone,
-            seedColor,
-        ) { selectedClockId, selectedColor, colorTone, seedColor ->
+            seedColor ->
             val selectedClock = fakeClocks.find { clock -> clock.clockId == selectedClockId }
             checkNotNull(selectedClock)
             ClockMetadataModel(
                 clockId = selectedClock.clockId,
                 isSelected = true,
+                description = "description",
+                thumbnail = ColorDrawable(0),
+                isReactiveToTone = selectedClock.isReactiveToTone,
                 selectedColorId = selectedColor,
                 colorToneProgress = colorTone,
                 seedColor = seedColor,
             )
         }
 
-    private val _selectedClockSize = MutableStateFlow(ClockSize.SMALL)
+    private val _selectedClockSize = MutableStateFlow(ClockSize.DYNAMIC)
     override val selectedClockSize: Flow<ClockSize> = _selectedClockSize.asStateFlow()
 
     override suspend fun setSelectedClock(clockId: String) {
@@ -81,10 +84,46 @@ open class FakeClockPickerRepository(clocks: List<ClockMetadataModel> = fakeCloc
         const val CLOCK_ID_3 = "clock3"
         val fakeClocks =
             listOf(
-                ClockMetadataModel(CLOCK_ID_0, true, null, 50, null),
-                ClockMetadataModel(CLOCK_ID_1, false, null, 50, null),
-                ClockMetadataModel(CLOCK_ID_2, false, null, 50, null),
-                ClockMetadataModel(CLOCK_ID_3, false, null, 50, null),
+                ClockMetadataModel(
+                    CLOCK_ID_0,
+                    true,
+                    "description0",
+                    ColorDrawable(0),
+                    true,
+                    null,
+                    50,
+                    null,
+                ),
+                ClockMetadataModel(
+                    CLOCK_ID_1,
+                    false,
+                    "description1",
+                    ColorDrawable(0),
+                    true,
+                    null,
+                    50,
+                    null,
+                ),
+                ClockMetadataModel(
+                    CLOCK_ID_2,
+                    false,
+                    "description2",
+                    ColorDrawable(0),
+                    true,
+                    null,
+                    50,
+                    null,
+                ),
+                ClockMetadataModel(
+                    CLOCK_ID_3,
+                    false,
+                    "description3",
+                    ColorDrawable(0),
+                    false,
+                    null,
+                    50,
+                    null,
+                ),
             )
         const val CLOCK_COLOR_ID = "RED"
         const val CLOCK_COLOR_TONE_PROGRESS = 87
